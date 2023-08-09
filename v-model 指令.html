@@ -1,0 +1,37 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>v-model 指令</title>
+    </head>
+    <body>
+        
+        <div id="app">
+            <input type="button" value="修改 message" @click="setMsg">
+            <input type="text" v-model="message" @keyup.enter="getMsg">
+            <h2>{{ message}}</h2>
+        </div>
+
+        <!-- 开发环境版本，包含了有帮助的命令行警告 -->
+        <script src="vue.js"></script>
+        
+        <script>
+            var app = new Vue({
+                el:"#app",
+                data: {
+                    message:"hello world"
+                },
+                methods:{
+                    getMsg: function() {
+                        alert(this.message);
+                    },
+                    setMsg: function(){
+                        this.message = "hello china"
+                    }
+                }
+            })
+        </script>
+
+    </body>
+</html>

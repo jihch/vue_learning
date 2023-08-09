@@ -1,0 +1,43 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>v-on 补充</title>
+    </head>
+    <body>
+        
+        <div id="app">
+            <input type="button" value="点击" @click="doIt">
+            <input type="button" value="点击" @click="doIt1(666)">
+            <input type="button" value="点击" @click="doIt2(666, '老铁')">
+            <input type="text" @keyup="sayHi"/>
+            <input type="text" @keyup.enter="sayHi"/>
+        </div>
+
+        <!-- 开发环境版本，包含了有帮助的命令行警告 -->
+        <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+        
+        <script>
+            var app = new Vue({
+                el:"#app",
+                methods :{
+                    doIt: function () {
+                        console.log("do something");
+                    },
+                    doIt1:function(p1) {
+                        console.log(p1);
+                    },
+                    doIt2:function(p1, p2) {
+                        console.log(p1);
+                        console.log(p2);
+                    },
+                    sayHi: function() {
+                        alert("Hi");
+                    }
+                }
+            })
+        </script>
+
+    </body>
+</html>
