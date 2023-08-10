@@ -1,0 +1,127 @@
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>天知道 回车查询</title>
+    </head>
+
+    <body>
+        
+        <div class="wrap" id="app">
+
+
+
+            <div class="search_form">
+
+                <div class="logo"><img src="img/logo.png" alt="logo"></div>
+
+                <div class="form_group">
+                    <input type="text" v-model="city" @keyup.enter="searchWeather" class="input_txt" placeholder="请输入查询的城市">
+                    <button class="input_sub">搜 索</button>
+                </div>
+
+
+                <div class="hotkey">
+                    <a href="javascript:;">北京</a>
+                    <a href="javascript:;">上海</a>
+                    <a href="javascript:;">广州</a>
+                    <a href="javascript:;">深圳</a>
+                </div>
+
+            </div>
+
+        
+            <ul class="weather_list">
+                <li v-for="item in weatherList">
+                    <div class="info_type"><span class="iconfont">{{ item.type }}</span></div>
+
+                    <div class="info_temp">
+                        <b>{{ item. low }}</b>
+                        ~
+                        <b>{{ item.high }}</b>
+                    </div>
+                    <div class="info_date"><span>{{item.date}}</span></div>
+                </li>
+                
+            </ul>
+        </div>
+        
+
+        <!-- 开发环境版本，包含了有帮助的命令行警告 -->
+        <script src="vue.js"></script>
+        <script src="axios.min.js"></script>
+        
+        <script>
+            /*
+              请求地址：http://wthrcdn.etouch.cn/weather_mini
+              请求方法：get
+              请求参数：city（城市名）
+              响应内容：天气信息
+
+              1.点击回车
+              2.查询数据
+              3.渲染数据
+            */
+            var app = new Vue({
+                el:"#app",
+                data:{
+                    city:'',
+                    weatherList:[
+                        // {
+                        //     type:"测试晴",
+                        //     low:"28",
+                        //     high:"30",
+                        //     date:"天"
+                        // },
+                        // {
+                        //     type:"测试晴",
+                        //     low:"28",
+                        //     high:"30",
+                        //     date:"天"
+                        // }
+                    ]
+                },
+                methods:{
+                    searchWeather: function(){
+                        console.log("天气查询");
+                        console.log(this.city);
+                        // 调用接口
+                        var that = this;
+
+                        // axios.get('http://wthrcdn.etouch.cn/weather_mini?city=' + this.city).then(function(){
+                        axios.get('https://mcs.zijieapi.com/list').then(function(response){
+
+                            // console.log(response);
+                            // console.log(response.data.data.forecast);
+                            // debugger;
+                            console.log(response);
+
+                            // that.weatherList = response.data.data.forecast;
+                            var testData = [
+                                {
+                                    type:"测试晴",
+                                    low:"28",
+                                    high:"30",
+                                    date:"天"
+                                },
+                                {
+                                    type:"测试晴",
+                                    low:"28",
+                                    high:"30",
+                                    date:"天"
+                                }
+                            ];
+
+                            that.weatherList = testData;
+
+                        }).catch(function(err){
+
+                        })
+                    }//end 
+                }//end method
+            });
+        </script>
+
+    </body>
+</html>
