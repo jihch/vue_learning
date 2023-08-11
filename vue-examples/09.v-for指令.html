@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>vue-for</title>
+</head>
+
+<body>
+    <div id='app'>
+        <input type="button" value='添加一个元素' @click='addItem'>
+        <input type="button" value="删除一个元素" @click='deleteItem'>
+        <ul>
+            <li v-for="(item,index) in list"> {{item}} {{index}}</li>
+        </ul>
+        
+    </div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script>
+
+    var app = new Vue({
+
+        el: "#app",
+        data: {
+            list: ['hello', 'world']
+        },
+        methods:{
+            addItem:function(){
+                this.list.push('123123')
+            },
+            deleteItem:function(){
+                this.list.shift();
+            }
+
+        }
+    })
+
+</script>
+<!-- 
+
+    1. v-for的作用是根据数据生成列表结构
+    2. 数组经常和v-for结合使用
+    3. 语法是(item,index) in 数据
+    4. item和index可以结合其他指令一起使用
+    5. 数组长度的更新会同步到页面上，是相应式的
+
+ -->
+</html>

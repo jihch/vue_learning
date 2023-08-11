@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>vue-show</title>
+</head>
+
+<body>
+    <div id="app">
+        <input type="button" value="click this button" @click="toggleIsShow">
+        <p v-show="isShow"> hello vue v-show</p>
+        <p v-if="isShow"> hello vue v-if</p>
+    </div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script>
+    var app = new Vue({
+        el: "#app",
+        data: {
+            isShow:false,
+        },
+        methods:{
+            toggleIsShow:function(){
+                this.isShow = !this.isShow
+            }
+        }
+    });
+</script>
+
+<!-- 
+    1. v-show 指令的作用是：根据真假奇幻元素的显示状态
+    2. 原理是修改元素的display，显示实现隐藏
+    3. 指令后面的内容，最终都会解析为布尔值
+    4. 与v-if的
+ -->
+</html>

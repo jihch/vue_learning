@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>vue基础</title>
+</head>
+
+<body>
+    <div id="app" class="app">
+        {{ message}}
+        <span>{{message}}</span>
+    </div>
+</body>
+<script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+<script>
+    var app = new Vue({
+        // el: '#app',
+        el: ".app",
+        data: {
+            message: 'Hello Vue!'
+        }
+    });
+
+</script>
+
+</html>
+<!-- 
+Vue实例的作用范围是什么？
+    Vue会管理el选项 命中的元素 及其 内部的后代元素
+
+是否可以使用其他的选择器
+    可以
+
+
+
+ -->
