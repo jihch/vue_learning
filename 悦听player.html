@@ -4,6 +4,145 @@
         <meta name="viewport" content="width=device-width,initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
         <title>悦听player</title>
+        <style>
+            .disc {
+                position: absolute;
+                left: 73px;
+                top: 60px;
+                z-index: 9;
+            }
+            .cover {
+                position: absolute;
+                left: 125px;
+                top: 112px;
+                width: 150px;
+                height: 150px;
+                border-radius: 75px;
+                z-index: 8;
+            }
+
+            /* 旋转的动画 */
+            @keyframes Rotate {
+            from {
+                transform: rotateZ(0);
+            }
+            to {
+                transform: rotateZ(360deg);
+            }
+            }
+            /* 旋转的类名 */
+            .autoRotate {
+                animation-name: Rotate;
+                animation-iteration-count: infinite;
+                animation-play-state: paused;
+                animation-timing-function: linear;
+                animation-duration: 5s;
+            }
+
+            .comment_wrapper {
+                width: 180px;
+                height: 435px;
+                list-style: none;
+                position: absolute;
+                left: 600px;
+                top: 0px;
+                padding: 25px 10px;
+            }
+
+            .comment_wrapper .title {
+                position: absolute;
+                top: 0;
+                margin-top: 10px;
+            }
+
+            .comment_wrapper .comment_list {
+                overflow: auto;
+                height: 410px;
+            }
+
+            .comment_wrapper .comment_list::-webkit-scrollbar {
+                display: none;
+            }
+
+            .comment_wrapper dl {
+                padding-top: 10px;
+                padding-left: 55px;
+                position: relative;
+                margin-bottom: 20px;
+            }
+
+            .comment_wrapper dt {
+                position: absolute;
+                left: 4px;
+                top: 10px;
+            }
+
+            .comment_wrapper dt img {
+                width: 40px;
+                height: 40px;
+                border-radius: 20px;
+            }
+
+            .comment_wrapper dd {
+                font-size: 12px;
+            }
+
+            .comment_wrapper .name {
+                font-weight: bold;
+                color: #333;
+                padding-top: 5px;
+            }
+
+            .comment_wrapper .detail {
+                color: #666;
+                margin-top: 5px;
+                line-height: 18px;
+            }
+
+            /* 是否正在播放 */
+            .player_con.playing .disc,
+            .player_con.playing .cover {
+                animation-play-state: running;
+            }
+
+            /* 播放杆 转回去 */
+            .player_con.playing .play_bar {
+                transform: rotate(0);
+            }
+
+            .video_con video {
+                position: fixed;
+                width: 800px;
+                height: 546px;
+                left: 50%;
+                top: 50%;
+                margin-top: -273px;
+                transform: translateX(-50%);
+                z-index: 990;
+            }
+
+            .video_con .mask {
+                position: fixed;
+                width: 100%;
+                height: 100%;
+                left: 0;
+                top: 0;
+                z-index: 980;
+                background-color: rgba(0, 0, 0, 0.8);
+            }
+
+            .video_con .shutoff {
+                position: fixed;
+                width: 40px;
+                height: 40px;
+                background: url("../images/shutoff.png") no-repeat;
+                left: 50%;
+                margin-left: 400px;
+                margin-top: -273px;
+                top: 50%;
+                z-index: 995;
+            }
+        </style>
     </head>
     <body>
         
@@ -24,9 +163,9 @@
 
                                 <li v-for="item in musicList">
                                     <!-- <a href="javascript:;" @click="playMusic(x.id)">{{ item.id }}点击播放</a> -->
-                                    <a href="javascript:;" @click="playMusic(item.id)">点击播放</a>
+                                    <a href="javascript:;" @click="playMusic(item.id)">播放标志</a>
                                     <b>{{ item.name }}</b>
-                                    <span><i></i></span>
+                                    <span v-if="item.mvid!=0" @click="playMV(item.mvid)"><i>MV标志</i></span>
                                 </li>
 
                             </ul>
@@ -34,22 +173,37 @@
                         </div>
 
                         <!--歌曲信息容器-->
-                        <div class="player_con">
+                        <div class="player_con" :class="{playing:isPlaying}">
                             <img src="images/player_bar.png" class="play_bar"/>
                             <!--黑胶碟片-->
                             <img src="images/disc.png" class="disc autoRotate">
-                            <img src="images/cover.png" class="cover autoRotate">
+                            <img :src="musicCover" class="cover autoRotate">
                         </div>
+
+                        <!--评论容器-->
+                        <div class="comment_wrapper">
+                            <h5 class="title">热门留言</h5>
+                            <div class="comment_list">
+                                <dl v-for="item in hotComments">
+                                    <dt><img :src="item.user.avatarUrl" alt=""></dt>
+                                    <dd class="name">{{ item.nickname }}</dd>
+                                    <dd class="detail">
+                                        {{ item.content }}
+                                    </dd>
+                                </dl>
+                            </div>
+                        </div>
+                        <img src="images/line.png" class="right_line">
 
                     </div>
 
                     <div class="audio_on">
-                        <audio ref="audio" :src="musicUrl" controls autoplay loop class="myaudio"></audio>
+                        <audio ref="audio" @play="play" @pause="pause" :src="musicUrl" controls autoplay loop class="myaudio"></audio>
                     </div>
 
-                    <video class="video_con" style="display:none;">
-                        <video src="" controls="controls"></video>
-                        <div class="mask"></div>
+                    <div class="video_con" v-show="isShow" style="display:none;">
+                        <video :src="mvUrl" controls="controls"></video>
+                        <div class="mask" @click="hide"></div>
                     </video>
 
                 </div>
@@ -64,26 +218,59 @@
         
         <script>
             /*
-            歌曲搜索接口
+           1.歌曲搜索接口
             请求地址：https://autumnfish.cn/search
             请求方法：get
             请求参数：keywords（查询关键字）
             响应内容：歌曲搜索结果
 
-            歌曲url获取接口
+           2.歌曲url获取接口
             请求地址：https://autumnfish.cn/song/url
             请求方法：get
             请求参数：id（查询关键字）
             响应内容：歌曲url地址
+
+           3.歌曲详情获取
+            请求地址：https://autumnfish.cn/song/detail
+            请求方法：get
+            请求参数：ids（歌曲id）
+            响应内容：歌曲推荐（包括封面信息）
+
+            4.热门评论获取
+            请求地址：https://autumnfish.cn/comment/hot?type=0
+            请求方法：get
+            请求参数：id（歌曲id，地址中的type固定为0）
+            响应内容：歌曲的热门评论
+
+            5.MV地址获取
+            请求地址：https://autumnfish.cn/mv/url
+            请求方法：get
+            请求参数：id（mvid，为0说明没有mv）
+            响应内容：MV的地址
             */
             var app = new Vue({
                 el:"#player",
                 data: {
+                    //查询关键字
                     query:"",
+                    //歌曲数组
                     musicList:[],
-                    musicUrl:""
+                    //歌曲地址
+                    musicUrl:"",
+                    //歌曲封面
+                    musicCover:"",
+                    //歌曲评论
+                    hotComments:[],
+                    //动画播放状态
+                    isPlaying:false,
+                    // 遮罩层的显示状态
+                    isShow: false,
+                    // MV地址
+                    mvUrl:""
                 },
                 methods :{
+
+                    // 歌曲搜索
                     searchMusic: function () {
                         var that = this;
                         axios.get("https://autumnfish.cn/search?keywords="+this.query)
@@ -95,18 +282,63 @@
 
                         })
                     },
+                    //歌曲播放
                     playMusic: function(musicId) {
-                        console.log(musicId);
+                        // console.log(musicId);
                         var that = this;
+                        // 获取歌曲地址
                         axios.get("https://autumnfish.cn/song/url?id=" + musicId)
                         .then(function(response){
                             console.log(response);
                             // console.log
                             console.log(response.data.data[0].url);
                             that.musicUrl = response.data.data[0].url;
+                        }, function(err){})
+
+                        // 歌曲详情获取
+                        axios.get("https://autumnfish.cn/song/detail?ids="+musicId)
+                        .then(function(response){
+                            console.log(response);
+                            console.log(response.data.songs[0].al.picUrl);
+                            that.musicCover = response.data.songs[0].al.picUrl;
+                        }, function(err){})
+
+                        //歌曲评论获取
+                        axios.get("https://autumnfish.cn/comment/hot?type=0&id=" + musicId)
+                        .then(function(response){
+                            console.log("歌曲评论获取");
+                            console.log(response)
+                            console.log(response.data.hotComments);
+                            that.hotComments = response.data.hotComments;
+                        },function(err){
+
+                        })
+                    },
+                    // 歌曲播放
+                    play:function(){
+                        // console.log("play");
+                        this.isPlaying = true;
+                    },
+                    // 歌曲暂停
+                    pause:function(){
+                        // console.log("pause");
+                        this.isPlaying = false;
+                    },
+                    // 播放MV
+                    playMV:function(mvid){
+                        var that = this;
+                        axios.get("https://autumnfish.cn/mv/url?id="+mvid)
+                        .then(function(response){
+                            // console.log(response);
+                            console.log(response.data.data.url);
+                            that.isShow = true;
+                            that.mvUrl = response.data.data.url;
                         }, function(err){
 
                         })
+                    },
+                    hide:function(){
+                        this.isShow = false;
                     }
                 }
             })
